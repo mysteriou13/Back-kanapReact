@@ -3,15 +3,19 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var dotenv = require('dotenv');
+dotenv.config();
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+const {connectDatabase} = require('./Connect');
 var app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your React app's URL 
+  origin: process.env.FRONTEND_URL, // Replace with your React app's URL 
 methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
 }));
+
+connectDatabase();
 
 app.use(logger('dev'));
 app.use(express.json());

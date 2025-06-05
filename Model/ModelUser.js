@@ -9,6 +9,8 @@ const UserSchema = new Schema({
     zipCode: String,
     email: String,
     password: String,
+    city: String,
+    country: String,
     phoneNumer:Number
 });
 
