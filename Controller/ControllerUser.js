@@ -9,14 +9,11 @@ const { User }  = require("../Model/ModelUser");
 
  /*verif si le user dans la base de  donner*/
     let datauser = await User.findOne({ email: req.body.email }).exec();
-    
-    console.log("datauser", datauser);
-
     if(datauser) {
-        console.log("user already exist");
-        return res.status(400).json({ message: "User already exists" });
+    
+        return res.status(200).json({ status:false, message: "email existe déja" });
     }else{
-        console.log("user not exist, create user");
+
         const newUser = new User({
            ...req.body,
                 password: hash 
@@ -24,8 +21,7 @@ const { User }  = require("../Model/ModelUser");
 
         try {
             await newUser.save();
-            console.log("User created successfully");
-            return res.status(201).json({ message: "User created successfully" });
+            return res.status(201).json({status:true, message: "User created successfully" });
         } catch (error) {
             console.error("Error creating user:", error);
             return res.status(500).json({ message: "Internal server error" });
