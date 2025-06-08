@@ -1,7 +1,10 @@
 /*controllerUser*/
 
 const bcrypt = require("bcrypt");
+
 const { User }  = require("../Model/ModelUser");
+
+/*inscription user*/
  async function postInscription(req, res) {
     console.log("inscription controller",req.body);
   const salt = bcrypt.genSaltSync(10);
@@ -32,15 +35,24 @@ const { User }  = require("../Model/ModelUser");
  
  }
 
+ /*connection user*/
  async function connection(req,res){
-
-     let data = await User.findOne({email:req.body.email});
+        console.log("body",req.body);
+     let data = await User.findOne({email:req.body.email}).exec();
         if(data){
          console.log("user trouve");
+    
+         let pass = bcrypt.compareSync(req.body.password, data.password);
+         
+           if(pass == true){
+           return res.status(200).json({status:false,errorMail:" " ,pass :true})
+           }else{
+             return res.status(200).json({status:false,errorMail:" " ,pass :false})
+           }
         }else{
             console.log("user inconnu");
 
-              return res.status(200).json({status:false,errorMail:"email incorrect" })
+              return res.status(200).json({status:false,errorMail:"email incorrect", pass:false})
         }
    
  }
