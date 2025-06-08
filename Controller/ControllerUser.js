@@ -31,5 +31,18 @@ const { User }  = require("../Model/ModelUser");
  }
  
  }
+
+ async function connection(req,res){
+
+     let data = await User.findOne({email:req.body.email});
+        if(data){
+         console.log("user trouve");
+        }else{
+            console.log("user inconnu");
+
+              return res.status(200).json({status:false,errorMail:"email incorrect" })
+        }
+   
+ }
  
-module.exports = { postInscription };
+module.exports = { postInscription,connection };
