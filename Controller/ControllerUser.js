@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 const { User }  = require("../Model/ModelUser");
 
+
 /*inscription user*/
  async function postInscription(req, res) {
     console.log("inscription controller",req.body);
@@ -69,6 +70,10 @@ let datauser = User.findOne({email:req.user.email}).exec();
     datauser = await datauser;
     //console.log("datauser",datauser);
 
+   datauser = datauser.toObject(); // Convertir le document Mongoose en objet JavaScript
+     datauser.password = undefined; // Supprimer le mot de passe
+    datauser.__v = undefined; // Supprimer la version du document
+    datauser._id = undefined; // Supprimer l'ID du document
 if(datauser){
         console.log("datauser",datauser);
     return res.status(200).json({status:true,data:datauser});
