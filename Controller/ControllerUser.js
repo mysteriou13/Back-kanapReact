@@ -1,7 +1,7 @@
 /*controllerUser*/
 
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken")
 const { User }  = require("../Model/ModelUser");
 
 /*inscription user*/
@@ -40,21 +40,75 @@ const { User }  = require("../Model/ModelUser");
         console.log("body",req.body);
      let data = await User.findOne({email:req.body.email}).exec();
         if(data){
-         console.log("user trouve");
-    
+         
          let pass = bcrypt.compareSync(req.body.password, data.password);
          
            if(pass == true){
-           return res.status(200).json({status:false,errorMail:" " ,pass :true})
-           }else{
-             return res.status(200).json({status:false,errorMail:" " ,pass :false})
+             var token = jwt.sign({ email: data.email }, process.env.secretKey);
+            return res.status(200).json({status:true,mail:true ,pass :true,token:token})
+          
+          }else{
+             
+            return res.status(200).json({status:false,mail:true ,pass :false})
+
            }
         }else{
-            console.log("user inconnu");
-
-              return res.status(200).json({status:false,errorMail:"email incorrect", pass:false})
+          
+              return res.status(200).json({status:false,mail:false, pass:false})
         }
    
  }
+
+ /*send data user*/
+ async function readatauser(req,res){
+console.log("req.user",req.user.email);
+let datauser = User.findOne({email:req.user.email}).exec();
+
+/*affiche les donne user*/
+
+    datauser = await datauser;
+    //console.log("datauser",datauser);
+
+if(datauser){
+        console.log("datauser",datauser);
+    return res.status(200).json({status:true,data:datauser});
+
+    
+}
+
+
+ }
  
-module.exports = { postInscription,connection };
+/*update data user*/
+
+async function updateuser(req, res) {
+
+    console.log("update user data body", req.body.editData.address);
+
+    const filter = { email: "test@test.com" };
+    const update = {
+         ...req.body.editData // Utiliser les données de l'édition
+    };
+
+    try {
+        // findOneAndUpdate prend deux arguments: le filtre et les champs à mettre à jour
+        const doc = await User.findOneAndUpdate(filter, update, { new: true });
+
+        if (!doc) {
+            return res.status(404).json({ status: false, message: "User not found" });
+        }
+
+        console.log("User updated successfully");
+        return res.status(200).json({ status: true, message: "User updated successfully", user: doc });
+
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return res.status(500).json({ status: false, message: "Internal server error" });
+    }
+}
+
+
+
+
+
+module.exports = { postInscription,connection,readatauser,updateuser };
