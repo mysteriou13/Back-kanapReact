@@ -7,15 +7,15 @@ const { User }  = require("../Model/ModelUser");
 
 /*inscription user*/
  async function postInscription(req, res) {
-    console.log("inscription controller",req.body);
+
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(req.body.password, salt);
 
  /*verif si le user dans la base de  donner*/
     let datauser = await User.findOne({ email: req.body.email }).exec();
     if(datauser) {
-    
-        return res.status(200).json({ status:false, message: "email existe déja" });
+         
+        return res.status(200).json({ status:false, messagemail: "email existe déja" });
     }else{
 
         const newUser = new User({
@@ -25,7 +25,9 @@ const { User }  = require("../Model/ModelUser");
 
         try {
             await newUser.save();
-            return res.status(201).json({status:true, message: "User created successfully" });
+               var token = jwt.sign({ email: req.body.email }, process.env.secretKey);
+            return res.status(201).json({status:true,token:token, message: "User created successfully" });
+
         } catch (error) {
             console.error("Error creating user:", error);
             return res.status(500).json({ message: "Internal server error" });
@@ -62,23 +64,22 @@ const { User }  = require("../Model/ModelUser");
 
  /*send data user*/
  async function readatauser(req,res){
-console.log("req.user",req.user.email);
+
 let datauser = User.findOne({email:req.user.email}).exec();
 
 /*affiche les donne user*/
 
     datauser = await datauser;
-    //console.log("datauser",datauser);
-
    datauser = datauser.toObject(); // Convertir le document Mongoose en objet JavaScript
      datauser.password = undefined; // Supprimer le mot de passe
     datauser.__v = undefined; // Supprimer la version du document
     datauser._id = undefined; // Supprimer l'ID du document
 if(datauser){
-        console.log("datauser",datauser);
+        console.log("datauser trouver",datauser);
     return res.status(200).json({status:true,data:datauser});
-
     
+}else{
+    return res.status(200).json({status:false})
 }
 
 
