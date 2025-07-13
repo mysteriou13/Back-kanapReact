@@ -7,8 +7,9 @@ var dotenv = require('dotenv');
 var helmet = require("helmet");
 
 dotenv.config();
-var usersRouter = require('./routes/users');
-var  productuser = require('./routes/Product')
+var usersRouter = require('./routes/RouteUsers');
+var  productRouter = require('./routes/Product')
+var basketRouter =  require('./routes/RoutePanier')
 const {connectDatabase} = require('./Connect');
 var app = express();
 
@@ -18,7 +19,7 @@ methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
 
-
+/*connect Database*/
 connectDatabase();
 
 app.use(logger('dev'));
@@ -40,6 +41,6 @@ app.use(
   }),
 );
 app.use('/users', usersRouter);
-app.use('/product', productuser)
-
+app.use('/product', productRouter);
+app.use("/basket",basketRouter);
 module.exports = app;
