@@ -39,10 +39,11 @@ colors: {
     type: String,
     required: false,
   },
-  nbkanap: {
+  
+nbkananp: {
     type: Number,
     required: false,
-    default: 1,
+
   },
 
 })

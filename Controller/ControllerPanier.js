@@ -1,38 +1,43 @@
+const { ItemPanier } = require("../Model/ModelPanier");
+const jwt = require("jsonwebtoken");
 
-const {ItemPanier} = require("../Model/ModelPanier")
-const jwt = require("jsonwebtoken")
-
-/*add item in basket*/
 const InsertBasket = async (req, res) => {
   try {
-    // Récupérer le token depuis l'en-tête HTTP
+    // Vérifier l'en-tête Authorization
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       return res.status(401).json({ message: "Token manquant" });
     }
 
-    const token = authHeader.split(" ")[1]; // "Bearer <token>"
-    const logindecode = jwt.verify(token, "shhhhh"); // à adapter selon ton payload
-    console.log("/login decode", logindecode);
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, "shhhhh");
+    const userEmail = decodedToken.email;
 
-    // Extraire les données sans forcer _id
-    const { _id, login, ...itemWithoutId } = req.body.item;
+    // Récupérer les données
+    const { _id, login, ...item } = req.body.item;
+    const { name, color, nbkananp } = item;
 
-    const NewItem = new ItemPanier({
-      ...itemWithoutId,
-      login: logindecode.email, // ou logindecode.id, selon ton JWT
-    });
+    // Rechercher un produit existant pour le même utilisateur et nom
+    let findItem = await ItemPanier.findOne({ name,color, login: userEmail });
 
-    await NewItem.save();
+    if (!findItem) {
+      // Créer un nouvel item
+      const newItem = new ItemPanier({
+        ...item,
+        login: userEmail,
+      });
+      await newItem.save();
+    } else {
+      // Modifier la quantité et la couleur
+      findItem.nbkananp = nbkananp+findItem.nbkananp; // ajouter la quantité ou 1 par défaut
+      await findItem.save();
+    }
 
-    res.status(200).json({ message: "produit ajouté au panier" });
+    res.status(200).json({ message: "Produit ajouté ou modifié dans le panier" });
   } catch (error) {
-    console.error(error);
+    console.error("Erreur InsertBasket:", error);
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
 
-
-
-
-module.exports = {InsertBasket}
+module.exports = { InsertBasket };
